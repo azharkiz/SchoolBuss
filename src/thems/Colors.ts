@@ -32,7 +32,7 @@ const name = {
     transLusentGray: '#8e8e8e',
     transparent: 'transparent',
     green: '#008000',
-    yellow: '#eed202',
+    yellow: '#ffd800',
     lightSilver: '#f2f2f2',
     lightYellow: '#eab309',
     seaBlue: '#b3e0ff',
