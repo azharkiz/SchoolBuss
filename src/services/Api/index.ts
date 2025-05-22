@@ -1,6 +1,6 @@
 import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import Config from "react-native-config";
+import Config from 'react-native-config';
 
 
 const API_BASE_URL = Config.VITE_API_URL;
