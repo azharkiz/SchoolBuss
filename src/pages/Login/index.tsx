@@ -13,13 +13,14 @@ import {
   Image,
   ImageStyle
 } from "react-native";
+import { useAuth } from "../../services/hooks/useAuth";
 import { useAuthCheck } from "../../services/Context/AuthContext";
 import { useScreenContext } from "../../services/Context";
 import { Colors } from "../../thems/Colors";
 
 // Define the form data type
 interface FormData {
-  email: string;
+  username: string;
   password: string;
 }
 
@@ -39,10 +40,12 @@ interface Styles {
 }
 
 const Login: React.FC = () => {
+
   const screenContext = useScreenContext();
   const { setIsLoggedIn } = useAuthCheck();
+   const { login } = useAuth();
   const [formData, setFormData] = useState<FormData>({
-    email: "",
+    username: "",
     password: "",
   });
   const [error, setError] = useState<string | null>(null);
@@ -55,19 +58,28 @@ const Login: React.FC = () => {
   );
 
   const handleLogin = (): void => {
-    if (!formData.email || !formData.password) {
+    if (!formData.username || !formData.password) {
       setError("Please enter both email and password.");
       return;
     }
     if (isSubmitting) return;
 
     setIsSubmitting(true);
+     login(formData, {
+      onSuccess: (user) => {
+        setIsLoggedIn(true);
+      },
+      onError: () => {
+        setError("Invalid email or password.");
+        setIsSubmitting(false);
+      },
+    });
 
-    // Simulate login flow here (replace with actual logic)
-    setTimeout(() => {
-      setIsLoggedIn(true);
-      setIsSubmitting(false);
-    }, 1500);
+    // // Simulate login flow here (replace with actual logic)
+    // setTimeout(() => {
+    //   setIsLoggedIn(true);
+    //   setIsSubmitting(false);
+    // }, 1500);
   };
 
   const handleChange = (name: keyof FormData, value: string): void => {
@@ -95,8 +107,8 @@ const Login: React.FC = () => {
           <TextInput
             style={screenStyles.input}
             placeholder="Email"
-            value={formData.email}
-            onChangeText={(text) => handleChange("email", text)}
+            value={formData.username}
+            onChangeText={(text) => handleChange("username", text)}
             autoCapitalize="none"
             keyboardType="email-address"
             placeholderTextColor={Colors.name.DarkTextGray}
