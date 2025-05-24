@@ -20,12 +20,10 @@ export const useBusNumbers = () => {
 
    const changeBusMutation = useMutation({
     mutationFn: async ({ username, BusNo }) => {
-      console.log("kilipoi =", username, BusNo);
       const response = await api.post("/scan/changebusno", {
         username,
         BusNo,
       });
-      console.log("kilipoi =", response);
       return response.data;
     },
     onSuccess: (user) => {
