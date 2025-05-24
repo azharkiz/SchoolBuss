@@ -21,7 +21,6 @@ export const useAuth = () => {
         username,
         password,
       });
-      console.log("resp =", response);
       await AsyncStorage.setItem("user", JSON.stringify(response.data));
       return response.data;
     },
