@@ -7,11 +7,13 @@ export const useScanner = () => {
 
    const scanQR = useMutation({
     mutationFn: async ({ admnno, username, BusNo }) => {
+      console.log("resq:", admnno, username, BusNo);
       const response = await api.post("/scan", {
         admnno,
         username,
         BusNo,
       });
+      console.log("response:", response);
       return response.data;
     },
     onSuccess: (user) => {
@@ -28,6 +30,15 @@ export const useScanner = () => {
       }
     },
   });
+
+  // Logout function
+  const clearStore = async () => {
+    try {
+      queryClient.removeQueries({ queryKey: ["scanQR"] });
+    } catch (err) {
+      console.error("Logout failed:", err);
+    }
+  };
 
    const passValidity = useMutation({
     mutationFn: async ({ admnno }) => {
@@ -54,5 +65,6 @@ export const useScanner = () => {
   return {
     scanQR: scanQR.mutate,
     passValidity: passValidity.mutate,
+    clearStore
   };
 };

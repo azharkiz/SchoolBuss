@@ -1,97 +1,139 @@
-import React, {useState, useEffect} from "react";
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from "react-native";
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  StyleSheet,
+  Alert,
+} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import { useAuth } from "../../services/hooks/useAuth";
 import { useScreenContext } from "../../services/Context";
-import RNPickerSelect from 'react-native-picker-select';
+import RNPickerSelect from "react-native-picker-select";
 import { useBusNumbers } from "../../services/hooks/useBuses";
 import { Colors } from "../../thems/Colors";
 import Loader from "../../components/Loader";
 
 const Settings = () => {
   const screenContext = useScreenContext();
-    const [selectedBus, setSelectedBus] = useState(null);
-    const [username, setUsername] = useState(null);
-    const [name, setName] = useState(null);
-    const [currentBusNumber, setCurrentBusNumber] = useState(null);
-   const { busNumbers, isLoading, logout, changeBus, error } = useBusNumbers();
+  const { userInfo } = useAuth();
+  const [selectedBus, setSelectedBus] = useState(null);
+  const [previousBus, setPreviousBus] = useState(null); // 🆕 store previous value
+  const [username, setUsername] = useState(null);
+  const [name, setName] = useState(null);
+  const [currentBusNumber, setCurrentBusNumber] = useState(null);
+  const { busNumbers, isLoading, logout, changeBus, error } = useBusNumbers();
   const screenStyles = styles(
     screenContext,
     screenContext[screenContext.isPortrait ? "windowWidth" : "windowHeight"],
     screenContext[screenContext.isPortrait ? "windowHeight" : "windowWidth"]
   );
   const fetchUserData = async () => {
-  try {
-    const userDataString = await AsyncStorage.getItem("user");
-    const userData = userDataString ? JSON.parse(userDataString) : null;
-    setUsername(userData[0]?.username);
-    setName(userData[0]?.Name);
-    setCurrentBusNumber(userData[0].BusNo);
-    console.log('user', userData);
-  } catch (error) {
-    console.error('Failed to load user data:', error);
-  }
-};
-useEffect(()=>{fetchUserData()},[])
-    if (isLoading) return <Loader />;
-  
-    if (error) return <Text>Error loading bus numbers</Text>;
-  
-    const pickerItems = busNumbers.map(item => ({
-      label: `Bus ${item.BusNo}`,
-      value: item.BusNo,
-    }));
-
-  const changeBusNo =(value)=>{
-    const payload ={
-      username: username,
-      BusNo: value
+    try {
+      const userDataString = await AsyncStorage.getItem("user");
+      const userData = userDataString ? JSON.parse(userDataString) : null;
+      setUsername(userData[0]?.username);
+      setName(userData[0]?.Name);
+      setCurrentBusNumber(userData[0].BusNo);
+      setSelectedBus(userData[0].BusNo); // 🆕 set selectedBus
+      setPreviousBus(userData[0].BusNo);
+      console.log("user", userData);
+    } catch (error) {
+      console.error("Failed to load user data:", error);
     }
-    setSelectedBus(value)
-    changeBus(payload, {
-      onSuccess: (user) => {
-      
-      },
-      onError: () => {
-        setError("Invalid email or password.");
-        
-      },
-    });
-  }
+  };
+  useEffect(() => {
+    fetchUserData();
+  }, []);
+
+  if (isLoading) return <Loader />;
+
+  if (error) return <Text>Error loading bus numbers</Text>;
+
+  const pickerItems = busNumbers.map((item) => ({
+    label: `Bus ${item.BusNo}`,
+    value: item.BusNo,
+  }));
+
+  const changeBusNo = (value) => {
+    if (!value || value === selectedBus) return;
+
+    Alert.alert(
+      "Confirm Action",
+      "Are you sure you want to change the bus number?",
+      [
+        {
+          text: "Cancel",
+          onPress: () => {
+            // 🛑 Restore previous selection
+            setSelectedBus(previousBus);
+          },
+          style: "cancel",
+        },
+        {
+          text: "OK",
+          onPress: () => {
+            setSelectedBus(value); // update UI
+            setPreviousBus(value); // update backup
+            const payload = { username, BusNo: value };
+
+            changeBus(payload, {
+              onSuccess: () => {
+                userInfo(
+                  { username },
+                  {
+                    onSuccess: () => fetchUserData(),
+                    onError: () => console.error("Failed to refresh user info"),
+                  }
+                );
+              },
+              onError: () => {
+                console.error("Failed to change bus");
+                Alert.alert("Error", "Failed to change bus number.");
+              },
+            });
+          },
+        },
+      ],
+      { cancelable: false }
+    );
+  };
 
   return (
-    <View
-      style={[screenStyles.container]}>
-         <View style={screenStyles.section}>
-            <Text style={screenStyles.sectionHeading}>User Information</Text>
-    
-      {username && <Text style={screenStyles.selected}>Name: {username}</Text>}
-      {currentBusNumber && <Text style={screenStyles.selected}>Bus no: {currentBusNumber}</Text>}
-          </View>
-          <View style={screenStyles.section}>
-            <Text style={screenStyles.sectionHeading}>Option for change bus</Text>
-             <Text style={screenStyles.label}>Select a Bus Number:</Text>
-      <RNPickerSelect
-        onValueChange={(value) => changeBusNo(value)}
-        items={pickerItems}
-        placeholder={{ label: "Select Bus", value: null }}
-        style={pickerSelectStyles}
-      />
-      {selectedBus && <Text style={screenStyles.selected}>Selected: Bus {selectedBus}</Text>}
-          </View>
+    <View style={[screenStyles.container]}>
+      <View style={screenStyles.section}>
+        <Text style={screenStyles.sectionHeading}>User Information</Text>
 
-          <View style={screenStyles.logoutContainer}>
-            <TouchableOpacity style={screenStyles.button} onPress={logout}>
-              <MaterialIcons
-                name="logout"
-                color={Colors.name.white}
-                size={24}
-              />
-              <Text style={screenStyles.buttonText}>Logout</Text>
-            </TouchableOpacity>
-          </View>
-     
+        {name && (
+          <Text style={screenStyles.selected}>Name: {name}</Text>
+        )}
+        {currentBusNumber && (
+          <Text style={screenStyles.selected}>Bus no: {currentBusNumber}</Text>
+        )}
+      </View>
+      <View style={screenStyles.section}>
+        <Text style={screenStyles.sectionHeading}>Option for change bus</Text>
+        <Text style={screenStyles.label}>Select a Bus Number:</Text>
+        <RNPickerSelect
+          value={selectedBus} // ✅ controlled component
+          onValueChange={(value) => changeBusNo(value)}
+          items={pickerItems}
+          placeholder={{ label: "Select Bus", value: null }}
+          style={pickerSelectStyles}
+        />
+        {selectedBus && (
+          <Text style={screenStyles.selected}>Selected: Bus {selectedBus}</Text>
+        )}
+      </View>
+
+      <View style={screenStyles.logoutContainer}>
+        <TouchableOpacity style={screenStyles.button} onPress={logout}>
+          <MaterialIcons name="logout" color={Colors.name.white} size={24} />
+          <Text style={screenStyles.buttonText}>Logout</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -108,8 +150,18 @@ const styles = (screenContext, width, height) => ({
     borderBottomWidth: 1,
     borderBottomColor: Colors.name.lightGrey,
   },
-  label: { marginBottom: 10, fontSize: 14, color:  Colors.name.darkGrey, fontWeight: 'bold',},
-  selected: { marginTop: 20, fontSize: 14, fontWeight: 'bold', color:  Colors.name.darkGrey },
+  label: {
+    marginBottom: 10,
+    fontSize: 14,
+    color: Colors.name.darkGrey,
+    fontWeight: "bold",
+  },
+  selected: {
+    marginTop: 20,
+    fontSize: 14,
+    fontWeight: "bold",
+    color: Colors.name.darkGrey,
+  },
   sectionHeading: {
     color: Colors.name.black,
     fontSize: 18,
@@ -179,20 +231,20 @@ const pickerSelectStyles = StyleSheet.create({
     fontSize: 16,
     padding: 12,
     borderWidth: 1,
-    borderColor: 'gray',
+    borderColor: "gray",
     borderRadius: 4,
-    color: 'black',
-    backgroundColor: '#f0f0f0',
+    color: "black",
+    backgroundColor: "#f0f0f0",
   },
   inputAndroid: {
     fontSize: 12,
     padding: 12,
     borderWidth: 1,
-    borderColor: 'gray',
+    borderColor: "gray",
     borderRadius: 4,
-    color: 'black',
-    backgroundColor: '#f0f0f0',
-    height:50,
+    color: "black",
+    backgroundColor: "#f0f0f0",
+    height: 50,
   },
 });
 export default Settings;

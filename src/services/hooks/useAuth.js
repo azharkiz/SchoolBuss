@@ -1,45 +1,67 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect } from "react";
 import { useAuthCheck } from "../Context/AuthContext";
 import api from "../Api";
+import { AppState } from "react-native";
+
+const EXPIRATION_HOURS = 18;
 
 export const useAuth = () => {
   const { setIsLoggedIn } = useAuthCheck();
   const queryClient = useQueryClient();
 
+  // Logout function
   const logout = async () => {
-    await AsyncStorage.removeItem("user");
-    queryClient.removeQueries({ queryKey: ["userProfile"] });
-    setIsLoggedIn(false);
+    try {
+      await AsyncStorage.multiRemove(["user", "loginTimestamp"]);
+      queryClient.removeQueries({ queryKey: ["userProfile", "userLogin"] });
+      setIsLoggedIn(false);
+    } catch (err) {
+      console.error("Logout failed:", err);
+    }
   };
 
-  // 👇 login mutation
+  // Login mutation
   const loginMutation = useMutation({
     mutationFn: async ({ username, password }) => {
-      const response = await api.post("/login", {
-        username,
-        password,
-      });
-      await AsyncStorage.setItem("user", JSON.stringify(response.data));
-      return response.data;
+      const response = await api.post("/login", { username, password });
+      const userData = response.data;
+
+      await AsyncStorage.setItem("loginTimestamp", Date.now().toString());
+      await AsyncStorage.setItem("user", JSON.stringify(userData));
+
+      return userData;
     },
     onSuccess: (user) => {
-      queryClient.setQueryData(["userProfile"], { user });
+      queryClient.setQueryData(["userLogin"], user);
+      queryClient.invalidateQueries({ queryKey: ["userLogin"] });
+    },
+    onError: (err) => {
+      console.error("Login error:", err?.response?.data || err?.message || err);
+    },
+  });
+
+  // Get User Info mutation
+  const getUserInfoMutation = useMutation({
+    mutationFn: async ({ username }) => {
+      const response = await api.post("/getuserinfo", { username });
+      const userInfo = response.data;
+
+      await AsyncStorage.setItem("user", JSON.stringify(userInfo));
+      return userInfo;
+    },
+    onSuccess: (user) => {
+      queryClient.setQueryData(["userProfile"], user);
       queryClient.invalidateQueries({ queryKey: ["userProfile"] });
     },
     onError: (err) => {
-      if (err.response) {
-        console.error("Server responded with error:", err.response.data);
-      } else if (err.request) {
-        console.error("No response received:", err.request);
-      } else {
-        console.error("Axios error:", err.message);
-      }
+      console.error("Get user info error:", err?.response?.data || err?.message || err);
     },
   });
 
   return {
+    userInfo: getUserInfoMutation.mutate,
     login: loginMutation.mutate,
     logout,
   };

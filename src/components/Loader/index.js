@@ -27,5 +27,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   loadingView: { marginLeft: -12 },
-  loadingText: { color: Colors.name.white },
+  loadingText: { color: Colors.name.black },
 });

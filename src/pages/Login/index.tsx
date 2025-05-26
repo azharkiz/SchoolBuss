@@ -59,7 +59,7 @@ const Login: React.FC = () => {
 
   const handleLogin = (): void => {
     if (!formData.username || !formData.password) {
-      setError("Please enter both email and password.");
+      setError("Please enter both username and password.");
       return;
     }
     if (isSubmitting) return;
@@ -70,7 +70,7 @@ const Login: React.FC = () => {
         setIsLoggedIn(true);
       },
       onError: () => {
-        setError("Invalid email or password.");
+        setError("Invalid username or password.");
         setIsSubmitting(false);
       },
     });
@@ -99,14 +99,14 @@ const Login: React.FC = () => {
             style={screenStyles.logo}
             resizeMode="contain"
           />
-          <Text style={screenStyles.titleHead}>SchoolBuss</Text>
+          <Text style={screenStyles.titleHead}>SchoolBuzz</Text>
           {/* <Text style={screenStyles.titleHeadDec}>
             Please login with your credemtials
           </Text> */}
 
           <TextInput
             style={screenStyles.input}
-            placeholder="Email"
+            placeholder="Username"
             value={formData.username}
             onChangeText={(text) => handleChange("username", text)}
             autoCapitalize="none"
