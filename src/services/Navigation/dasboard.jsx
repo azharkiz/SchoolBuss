@@ -1,9 +1,10 @@
 
-import React from "react";
+import React, {useEffect, useState} from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { TouchableOpacity, StyleSheet, Platform, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import DeviceInfo from 'react-native-device-info';
 import Feather from "react-native-vector-icons/Feather";
 import AntDesign from "react-native-vector-icons/AntDesign";
 import Home from '../../pages/Home';
@@ -24,7 +25,9 @@ const DashStack = () => {
         keyboardHidesTabBar: true,
         tabBarStyle: [
           styles.tabBarStyle,
-          { backgroundColor: Colors.name.white },
+          { backgroundColor: Colors.name.white,
+            bottom: Platform.OS === 'android' && parseInt(DeviceInfo.getSystemVersion(), 10) === 15 ? 25 : 0
+          },
         ],
         tabBarActiveTintColor: Colors.name.red,
         tabBarInactiveTintColor: Colors.name.grey,

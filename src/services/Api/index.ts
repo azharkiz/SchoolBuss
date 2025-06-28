@@ -7,6 +7,7 @@ const API_BASE_URL = Config.VITE_API_URL;
 console.log('API_BASE_URL =', API_BASE_URL);
 const api: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
+  timeout: 10000,
   headers: {
     "Content-Type": "application/json",
   },

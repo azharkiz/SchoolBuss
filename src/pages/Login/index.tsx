@@ -11,7 +11,8 @@ import {
   TextStyle,
   ViewStyle,
   Image,
-  ImageStyle
+  ImageStyle,
+  Linking 
 } from "react-native";
 import { useAuth } from "../../services/hooks/useAuth";
 import { useAuthCheck } from "../../services/Context/AuthContext";
@@ -37,6 +38,7 @@ interface Styles {
   buttonText: TextStyle;
   forgotPassword: TextStyle;
   logo: ImageStyle,
+  privacyPolicy: ViewStyle
 }
 
 const Login: React.FC = () => {
@@ -74,12 +76,6 @@ const Login: React.FC = () => {
         setIsSubmitting(false);
       },
     });
-
-    // // Simulate login flow here (replace with actual logic)
-    // setTimeout(() => {
-    //   setIsLoggedIn(true);
-    //   setIsSubmitting(false);
-    // }, 1500);
   };
 
   const handleChange = (name: keyof FormData, value: string): void => {
@@ -123,7 +119,13 @@ const Login: React.FC = () => {
           />
 
           {error ? <Text style={screenStyles.errorText}>{error}</Text> : null}
-
+<TouchableOpacity
+  onPress={() => Linking.openURL("https://chssonline.in/privacy/")}
+>
+  <Text style={screenStyles.privacyPolicy}>
+    Privacy Policy
+  </Text>
+</TouchableOpacity>
           <TouchableOpacity style={screenStyles.button} onPress={handleLogin}>
             <Text style={screenStyles.buttonText}>
               {isSubmitting ? "loading..." : "Login"}
@@ -222,6 +224,12 @@ const styles = (screenContext: any, width: number, height: number): Styles =>
       color: Colors.name.darkBlue,
       textDecorationLine: "underline",
     },
+    privacyPolicy: {
+  marginTop: 14,
+  fontSize: 14,
+  color: Colors.name.darkBlue,
+  textDecorationLine: "underline",
+},
     
   });
 

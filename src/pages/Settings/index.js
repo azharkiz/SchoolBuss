@@ -6,7 +6,9 @@ import {
   ScrollView,
   StyleSheet,
   Alert,
+  Platform
 } from "react-native";
+import DeviceInfo from 'react-native-device-info';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import { useAuth } from "../../services/hooks/useAuth";
@@ -140,11 +142,12 @@ const Settings = () => {
 
 const styles = (screenContext, width, height) => ({
   container: {
-    flex: 1,
+    flex: Platform.OS === 'android' && parseInt(DeviceInfo.getSystemVersion(), 10) === 15 ? 0.9 : 1,
     paddingHorizontal: 20,
     backgroundColor: Colors.name.yellow,
   },
   section: {
+    marginTop: 20,
     marginBottom: 20,
     paddingVertical: 10,
     borderBottomWidth: 1,

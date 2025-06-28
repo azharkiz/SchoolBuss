@@ -12,6 +12,7 @@ import {
   Alert,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import DeviceInfo from 'react-native-device-info';
 import { useScanner } from "../../services/hooks/useScanner";
 import { useAuth } from "../../services/hooks/useAuth";
 import QRCodeScanner from "../../components/QRcodeScanner";
@@ -42,7 +43,39 @@ const EXPIRATION_HOURS = 18;
       await logout();
     }
   };
+  
 
+const checkAppVersion = async () => {
+  try {
+     const user = await AsyncStorage.getItem("user");
+     const currentVersion = await AsyncStorage.getItem("appVersion");
+     const jsonArray = JSON.parse(user);
+     const buildNo = jsonArray[0]?.build_no;
+    const latestVersion = buildNo;
+    //const minRequiredVersion = data.minRequiredVersion;
+    const storeUrl = "https://play.google.com"
+
+    if (currentVersion !== latestVersion) {
+      // ℹ️ Optional update
+      Alert.alert(
+        'Update Available',
+        'A new version of the app is available. Would you like to update?',
+        [
+          { text: 'Later', style: 'cancel' },
+          {
+            text: 'Update',
+            onPress: () => Linking.openURL(storeUrl),
+          },
+        ]
+      );
+    }
+  } catch (error) {
+    console.error('Version check failed:', error);
+  }
+};
+ useEffect(() => {
+    checkAppVersion();
+  }, []);
   useEffect(() => {
     checkSessionValidity();
 
@@ -138,9 +171,8 @@ const EXPIRATION_HOURS = 18;
   if (error) return <Text>Error loading bus numbers</Text>;
 
   return (
-    <View style={[styles.container]}>
-      <SafeAreaView />
-      <View style={{ flex: 0.85 }}>
+    <SafeAreaView style={[styles.container]}>
+      <View style={{ flex: Platform.OS === 'android' && parseInt(DeviceInfo.getSystemVersion(), 10) === 15 ? 0.80 : 0.85 }}>
         <QRCodeScanner
           QrCodeData={QrCodeData}
           isScanningApi={isScanning}
@@ -157,7 +189,7 @@ const EXPIRATION_HOURS = 18;
           </Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 

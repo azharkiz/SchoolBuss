@@ -107,8 +107,7 @@ const Home = ({ QrCodeData, isScanningApi, isModalVisibleAPi, scannerResponse, s
   if (!device) return <View style={screenStyles.loadContainer} />;
 
   return (
-    <View style={screenStyles.container}>
-      <SafeAreaView />
+    <SafeAreaView style={screenStyles.container}>
       <Camera
         ref={camera}
         style={StyleSheet.absoluteFill}
@@ -154,7 +153,9 @@ const Home = ({ QrCodeData, isScanningApi, isModalVisibleAPi, scannerResponse, s
                   onPress={() => {
                     setIsModalVisible(false);
                     setIsScanning(true);
+                    setScanResult(null);
                     clearStore
+
                   }}
                   style={screenStyles.modalButton}
                 >
@@ -165,7 +166,7 @@ const Home = ({ QrCodeData, isScanningApi, isModalVisibleAPi, scannerResponse, s
           </View>
         </View>
       </Modal>
-    </View>
+    </SafeAreaView>
   );
 };
 

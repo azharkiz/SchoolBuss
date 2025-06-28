@@ -27,9 +27,15 @@ export const useAuth = () => {
     mutationFn: async ({ username, password }) => {
       const response = await api.post("/login", { username, password });
       const userData = response.data;
+      console.log("data login =", response, username, password)
 
       await AsyncStorage.setItem("loginTimestamp", Date.now().toString());
       await AsyncStorage.setItem("user", JSON.stringify(userData));
+      try {
+        await AsyncStorage.setItem("appVersion", "1.0.0"); // ✅ Save version
+      } catch (e) {
+        console.error("Failed to save version:", e);
+      }
 
       return userData;
     },
@@ -56,7 +62,10 @@ export const useAuth = () => {
       queryClient.invalidateQueries({ queryKey: ["userProfile"] });
     },
     onError: (err) => {
-      console.error("Get user info error:", err?.response?.data || err?.message || err);
+      console.error(
+        "Get user info error:",
+        err?.response?.data || err?.message || err
+      );
     },
   });
 
