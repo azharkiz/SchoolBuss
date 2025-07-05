@@ -26,7 +26,6 @@ const DashStack = () => {
         tabBarStyle: [
           styles.tabBarStyle,
           { backgroundColor: Colors.name.white,
-            bottom: Platform.OS === 'android' && parseInt(DeviceInfo.getSystemVersion(), 10) === 15 ? 25 : 0
           },
         ],
         tabBarActiveTintColor: Colors.name.red,
@@ -63,8 +62,6 @@ export default DashStack;
 // Styles
 const styles = StyleSheet.create({
   tabBarStyle: {
-    position: "absolute",
-    height: 60,
     color: Colors.name.darkBlue,
     backgroundColor: 'red',
   },

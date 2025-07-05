@@ -7,13 +7,11 @@ export const useScanner = () => {
 
    const scanQR = useMutation({
     mutationFn: async ({ admnno, username, BusNo }) => {
-      console.log("resq:", admnno, username, BusNo);
       const response = await api.post("/scan", {
         admnno,
         username,
         BusNo,
       });
-      console.log("response:", response);
       return response.data;
     },
     onSuccess: (user) => {

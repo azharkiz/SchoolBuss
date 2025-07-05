@@ -17,6 +17,7 @@ import { useScanner } from "../../services/hooks/useScanner";
 import { useAuth } from "../../services/hooks/useAuth";
 import QRCodeScanner from "../../components/QRcodeScanner";
 import { Colors } from "../../thems/Colors";
+import { storeUrl, appVersion } from "../../services/StaticData/static";
 
 const Home = () => {
   const [currentBusNumber, setCurrentBusNumber] = useState(null);
@@ -39,7 +40,6 @@ const EXPIRATION_HOURS = 18;
     const hoursElapsed = (now - loginTime) / (1000 * 60 * 60); // milliseconds → hours
 
     if (hoursElapsed > EXPIRATION_HOURS) {
-      console.log("Session expired. Logging out.");
       await logout();
     }
   };
@@ -48,20 +48,15 @@ const EXPIRATION_HOURS = 18;
 const checkAppVersion = async () => {
   try {
      const user = await AsyncStorage.getItem("user");
-     const currentVersion = await AsyncStorage.getItem("appVersion");
      const jsonArray = JSON.parse(user);
      const buildNo = jsonArray[0]?.build_no;
     const latestVersion = buildNo;
     //const minRequiredVersion = data.minRequiredVersion;
-    const storeUrl = "https://play.google.com"
-
-    if (currentVersion !== latestVersion) {
-      // ℹ️ Optional update
+    if (latestVersion !== appVersion) {
       Alert.alert(
         'Update Available',
-        'A new version of the app is available. Would you like to update?',
+        'A new version of the app is available. Please update to continue.',
         [
-          { text: 'Later', style: 'cancel' },
           {
             text: 'Update',
             onPress: () => Linking.openURL(storeUrl),

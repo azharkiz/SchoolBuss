@@ -41,7 +41,6 @@ const Settings = () => {
       setCurrentBusNumber(userData[0].BusNo);
       setSelectedBus(userData[0].BusNo); // 🆕 set selectedBus
       setPreviousBus(userData[0].BusNo);
-      console.log("user", userData);
     } catch (error) {
       console.error("Failed to load user data:", error);
     }
@@ -142,7 +141,7 @@ const Settings = () => {
 
 const styles = (screenContext, width, height) => ({
   container: {
-    flex: Platform.OS === 'android' && parseInt(DeviceInfo.getSystemVersion(), 10) === 15 ? 0.9 : 1,
+    flex: 1,
     paddingHorizontal: 20,
     backgroundColor: Colors.name.yellow,
   },

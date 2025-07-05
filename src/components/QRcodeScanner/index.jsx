@@ -56,10 +56,9 @@ const Home = ({ QrCodeData, isScanningApi, isModalVisibleAPi, scannerResponse, s
           }
         );
         if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
-          console.log("Storage Permission denied");
         }
       } catch (err) {
-        console.log(err);
+        console.error(err);
       }
     }
   };

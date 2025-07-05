@@ -27,7 +27,6 @@ export const useAuth = () => {
     mutationFn: async ({ username, password }) => {
       const response = await api.post("/login", { username, password });
       const userData = response.data;
-      console.log("data login =", response, username, password)
 
       await AsyncStorage.setItem("loginTimestamp", Date.now().toString());
       await AsyncStorage.setItem("user", JSON.stringify(userData));
